@@ -26,6 +26,8 @@
   --edit-glow: rgba(232,164,74,0.3);
   --success: #6daa45;
   --success-dim: rgba(109,170,69,0.15);
+  --error: #c94f4f;
+  --error-dim: rgba(201,79,79,0.15);
   --radius: 14px;
   --radius-sm: 8px;
   --font: 'Satoshi', -apple-system, sans-serif;
@@ -44,12 +46,8 @@ body {
 }
 
 .screen {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  opacity: 0;
-  pointer-events: none;
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
   transform: scale(0.96) translateY(12px);
   transition: opacity 0.32s var(--ease), transform 0.32s var(--ease);
   will-change: transform, opacity;
@@ -62,16 +60,7 @@ body {
 .app-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 .header-badge { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.25); border-radius: 20px; padding: 3px 10px; }
 .header-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-
-/* Settings button in header */
-.settings-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 50%;
-  background: var(--surface-2); border: 1px solid var(--border);
-  cursor: pointer; color: var(--text-muted);
-  transition: background 0.15s, color 0.15s;
-  flex-shrink: 0;
-}
+.settings-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); cursor: pointer; color: var(--text-muted); transition: background 0.15s, color 0.15s; flex-shrink: 0; }
 .settings-btn:active { background: var(--surface-3); color: var(--text); }
 .header-right { display: flex; align-items: center; gap: 8px; }
 
@@ -80,7 +69,6 @@ body {
 .depth-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-faint); margin-bottom: 5px; }
 .depth-title { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
 .depth-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
-
 .dots-row { display: flex; align-items: center; gap: 5px; margin-top: 12px; }
 .dots-label { font-size: 10px; color: var(--text-faint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 4px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--surface-3); transition: all 0.25s var(--ease); }
@@ -91,13 +79,8 @@ body {
 
 .scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 16px 120px; -webkit-overflow-scrolling: touch; }
 .scroll-area::-webkit-scrollbar { display: none; }
-
 .prompt-list { display: flex; flex-direction: column; gap: 2px; }
-.prompt-item {
-  position: relative; background: var(--surface); border-radius: var(--radius);
-  padding: 16px; cursor: pointer; border: 1px solid var(--border); overflow: hidden;
-  transition: background 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.15s var(--ease);
-}
+.prompt-item { position: relative; background: var(--surface); border-radius: var(--radius); padding: 16px; cursor: pointer; border: 1px solid var(--border); overflow: hidden; transition: background 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.15s var(--ease); }
 .prompt-item::after { content: ''; position: absolute; inset: 0; background: var(--accent-glow); opacity: 0; border-radius: inherit; transition: opacity 0.15s var(--ease); pointer-events: none; }
 .prompt-item.pressing::after { opacity: 1; }
 .prompt-item.pressing { transform: scale(0.975); border-color: rgba(79,152,163,0.35); }
@@ -110,306 +93,103 @@ body {
 
 .depth-content { flex: 1; display: flex; flex-direction: column; padding: 0 16px 40px; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .depth-content::-webkit-scrollbar { display: none; }
-
-.info-card {
-  position: relative;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: border-color 0.2s var(--ease), transform 0.15s var(--ease), box-shadow 0.2s var(--ease);
-}
+.info-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; overflow: hidden; transition: border-color 0.2s var(--ease), transform 0.15s var(--ease), box-shadow 0.2s var(--ease); }
 .info-card::before { content: ''; position: absolute; inset: 0; background: var(--accent-glow); opacity: 0; border-radius: inherit; transition: opacity 0.15s var(--ease); pointer-events: none; }
 .info-card.pressing::before { opacity: 0.6; }
 .info-card.pressing { transform: scale(0.985); border-color: rgba(79,152,163,0.4); }
-
 body.edit-mode .info-card { border-color: rgba(232,164,74,0.35); box-shadow: 0 0 0 1px rgba(232,164,74,0.15); }
 body.edit-mode .info-card::before { background: var(--edit-glow); }
 body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
-
 .card-long-press-hint { position: absolute; top: 8px; right: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-faint); opacity: 0; transition: opacity 0.2s; }
 .info-card:hover .card-long-press-hint { opacity: 1; }
-
 .info-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: var(--text-faint); margin-bottom: 7px; }
 .info-card-value { font-size: 14px; color: var(--text-muted); line-height: 1.55; }
 .info-card-value strong { color: var(--text); font-weight: 600; }
-
-.info-card-value[contenteditable="true"] {
-  outline: none;
-  color: var(--text);
-  user-select: text;
-  -webkit-user-select: text;
-  caret-color: var(--edit-color);
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin: -6px -8px;
-  background: rgba(232,164,74,0.06);
-  border: 1px dashed rgba(232,164,74,0.3);
-  min-height: 32px;
-}
-
+.info-card-value[contenteditable="true"] { outline: none; color: var(--text); user-select: text; -webkit-user-select: text; caret-color: var(--edit-color); border-radius: 6px; padding: 6px 8px; margin: -6px -8px; background: rgba(232,164,74,0.06); border: 1px dashed rgba(232,164,74,0.3); min-height: 32px; }
 .action-hint { background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.2); border-radius: var(--radius); padding: 12px 14px; font-size: 13px; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 10px; }
 .depth-max-card { background: linear-gradient(135deg, rgba(79,152,163,0.12), rgba(79,152,163,0.04)); border: 1px solid rgba(79,152,163,0.3); border-radius: var(--radius); padding: 20px; text-align: center; }
 .depth-max-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
 .depth-max-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-
 #screen-card-detail .depth-header { border-top: 2px solid rgba(232,164,74,0.25); }
 .card-depth-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--edit-color); background: var(--edit-dim); border: 1px solid rgba(232,164,74,0.25); border-radius: 20px; padding: 3px 10px; margin-bottom: 10px; }
 
-.edit-fab {
-  position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px;
-  border-radius: 50%; background: var(--surface-3); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease), opacity 0.2s var(--ease);
-  opacity: 0; pointer-events: none; transform: scale(0.8) translateY(8px);
-}
+.edit-fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--surface-3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease), opacity 0.2s var(--ease); opacity: 0; pointer-events: none; transform: scale(0.8) translateY(8px); }
 .edit-fab.visible { opacity: 1; pointer-events: all; transform: scale(1) translateY(0); }
 .edit-fab.active { background: var(--edit-color); border-color: var(--edit-color); box-shadow: 0 4px 24px rgba(232,164,74,0.4); }
 .edit-fab.active svg { color: #111; }
-
-.edit-toolbar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--surface-2); border-top: 1px solid var(--border);
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  display: flex; gap: 8px; z-index: 190;
-  transform: translateY(100%); transition: transform 0.3s var(--ease);
-}
+.edit-toolbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface-2); border-top: 1px solid var(--border); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); display: flex; gap: 8px; z-index: 190; transform: translateY(100%); transition: transform 0.3s var(--ease); }
 .edit-toolbar.visible { transform: translateY(0); }
-.toolbar-btn {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-  background: var(--surface-3); cursor: pointer; font-size: 11px; font-weight: 600;
-  color: var(--text-muted); transition: background 0.15s, border-color 0.15s, color 0.15s;
-  font-family: var(--font);
-}
+.toolbar-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-3); cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-muted); transition: background 0.15s, border-color 0.15s, color 0.15s; font-family: var(--font); }
 .toolbar-btn:active { background: var(--surface); transform: scale(0.96); }
 .toolbar-btn.primary { background: var(--accent-dim); border-color: rgba(79,152,163,0.3); color: var(--accent); }
 .toolbar-btn.primary:active { background: rgba(79,152,163,0.25); }
 
-/* ── SETTINGS PANEL ───────────────────────────── */
-.settings-panel {
-  position: fixed; inset: 0; z-index: 400;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.4s var(--ease);
-}
+/* ── SETTINGS PANEL ───────────────────────────────── */
+.settings-panel { position: fixed; inset: 0; z-index: 400; background: var(--bg); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s var(--ease); }
 .settings-panel.open { transform: translateY(0); }
-
-.settings-header {
-  padding: 52px 20px 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-}
+.settings-header { padding: 52px 20px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
 .settings-title { font-size: 20px; font-weight: 700; }
-.settings-close-btn {
-  background: var(--surface-3); border: 1px solid var(--border);
-  border-radius: 50%; width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--text-muted);
-}
-
+.settings-close-btn { background: var(--surface-3); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
 .settings-scroll { flex: 1; overflow-y: auto; padding: 16px 16px calc(40px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
 .settings-scroll::-webkit-scrollbar { display: none; }
-
-.settings-section-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.2px; color: var(--text-faint);
-  margin: 20px 0 10px; padding: 0 2px;
-}
+.settings-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-faint); margin: 20px 0 10px; padding: 0 2px; }
 .settings-section-label:first-child { margin-top: 4px; }
-
-.settings-note {
-  font-size: 12px; color: var(--text-faint);
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 10px 12px;
-  display: flex; align-items: flex-start; gap: 8px;
-  line-height: 1.5; margin-bottom: 12px;
-}
-
-.provider-row {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 8px;
-  transition: border-color 0.2s;
-}
+.settings-note { font-size: 12px; color: var(--text-faint); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; margin-bottom: 12px; }
+.provider-row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; transition: border-color 0.2s; }
 .provider-row.has-key { border-color: rgba(79,152,163,0.3); }
-
-.provider-row-top {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 10px;
-}
+.provider-row-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .provider-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
 .provider-name { font-size: 14px; font-weight: 600; flex: 1; }
-.provider-status {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.8px; padding: 3px 8px; border-radius: 20px;
-}
-.provider-status.active {
-  color: var(--success); background: var(--success-dim);
-  border: 1px solid rgba(109,170,69,0.3);
-}
-.provider-status.inactive {
-  color: var(--text-faint); background: var(--surface-3);
-  border: 1px solid var(--border);
-}
-
-.provider-models {
-  font-size: 11px; color: var(--text-faint);
-  margin-bottom: 10px; line-height: 1.4;
-}
-
+.provider-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 3px 8px; border-radius: 20px; }
+.provider-status.active { color: var(--success); background: var(--success-dim); border: 1px solid rgba(109,170,69,0.3); }
+.provider-status.inactive { color: var(--text-faint); background: var(--surface-3); border: 1px solid var(--border); }
+.provider-models { font-size: 11px; color: var(--text-faint); margin-bottom: 10px; line-height: 1.4; }
 .provider-input-row { display: flex; gap: 8px; align-items: center; }
-.provider-key-input {
-  flex: 1; background: var(--surface-3);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 9px 12px; font-family: var(--font); font-size: 13px;
-  color: var(--text); outline: none;
-  transition: border-color 0.2s;
-  -webkit-appearance: none;
-  user-select: text; -webkit-user-select: text;
-}
+.provider-key-input { flex: 1; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-family: var(--font); font-size: 13px; color: var(--text); outline: none; transition: border-color 0.2s; -webkit-appearance: none; user-select: text; -webkit-user-select: text; }
 .provider-key-input:focus { border-color: rgba(79,152,163,0.5); }
 .provider-key-input::placeholder { color: var(--text-faint); }
-
-.provider-save-btn {
-  background: var(--accent); color: #fff;
-  border: none; border-radius: var(--radius-sm);
-  padding: 9px 14px; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: var(--font);
-  transition: opacity 0.15s, transform 0.1s;
-  white-space: nowrap;
-}
+.provider-save-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
 .provider-save-btn:active { transform: scale(0.95); opacity: 0.85; }
-.provider-clear-btn {
-  background: var(--surface-3); color: var(--text-muted);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 9px 10px; font-size: 13px; cursor: pointer;
-  font-family: var(--font); transition: background 0.15s;
-  display: none;
-}
+.provider-clear-btn { background: var(--surface-3); color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 10px; font-size: 13px; cursor: pointer; font-family: var(--font); transition: background 0.15s; display: none; }
 .provider-clear-btn:active { background: var(--surface-2); }
 .provider-row.has-key .provider-clear-btn { display: block; }
-
-/* Active provider selector */
-.active-provider-section {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px; margin-bottom: 8px;
-}
+.active-provider-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; }
 .active-provider-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: var(--text-faint); margin-bottom: 10px; }
-.provider-select {
-  width: 100%; background: var(--surface-3);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 10px 12px; font-family: var(--font); font-size: 14px;
-  color: var(--text); outline: none; cursor: pointer;
-  -webkit-appearance: none; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-.model-select {
-  width: 100%; background: var(--surface-3);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 10px 12px; font-family: var(--font); font-size: 13px;
-  color: var(--text-muted); outline: none; cursor: pointer;
-  -webkit-appearance: none; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-  margin-top: 8px;
-}
-/* ── END SETTINGS PANEL ───────────────────────── */
+.provider-select { width: 100%; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: var(--font); font-size: 14px; color: var(--text); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.model-select { width: 100%; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: var(--font); font-size: 13px; color: var(--text-muted); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; margin-top: 8px; }
 
-.chat-panel {
-  position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column;
-  background: var(--bg); transform: translateY(100%); transition: transform 0.4s var(--ease);
-}
+/* ── CHAT PANEL ───────────────────────────────────── */
+.chat-panel { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--bg); transform: translateY(100%); transition: transform 0.4s var(--ease); }
 .chat-panel.open { transform: translateY(0); }
-
-.chat-panel-header {
-  padding: 52px 20px 16px; border-bottom: 1px solid var(--border);
-  flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-}
+.chat-panel-header { padding: 52px 20px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
 .chat-panel-title { font-size: 17px; font-weight: 700; }
 .chat-close-btn { background: var(--surface-3); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
-
-.chat-context-strip {
-  padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
-  font-size: 12px; color: var(--text-faint); flex-shrink: 0; display: flex; align-items: center; gap: 6px;
-}
+.chat-context-strip { padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-faint); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
 .chat-context-strip strong { color: var(--text-muted); }
-
 .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
 .chat-messages::-webkit-scrollbar { display: none; }
-
 .chat-msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
 .chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
-.chat-msg.assistant { align-self: flex-start; background: var(--surface-2); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+.chat-msg.assistant { align-self: flex-start; background: var(--surface-2); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); white-space: pre-wrap; word-break: break-word; }
+.chat-msg.error { align-self: flex-start; background: var(--error-dim); color: var(--error); border-bottom-left-radius: 4px; border: 1px solid rgba(201,79,79,0.3); font-size: 13px; }
 .chat-msg.system-note { align-self: center; background: none; color: var(--text-faint); font-size: 12px; font-style: italic; max-width: 100%; padding: 4px 0; }
-.chat-msg.thinking { align-self: flex-start; background: var(--surface-2); color: var(--text-faint); border-bottom-left-radius: 4px; border: 1px solid var(--border); font-style: italic; }
-
+/* streaming cursor */
+.chat-msg.assistant.streaming::after { content: '▋'; display: inline-block; animation: blink 0.8s step-end infinite; margin-left: 2px; color: var(--accent); font-size: 12px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-faint); font-size: 13px; padding-bottom: 60px; }
 .chat-empty-icon { font-size: 32px; margin-bottom: 4px; }
-
-.chat-input-row {
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end;
-  flex-shrink: 0; background: var(--surface);
-}
-.chat-textarea {
-  flex: 1; background: var(--surface-3); border: 1px solid var(--border); border-radius: 20px;
-  padding: 10px 16px; font-family: var(--font); font-size: 14px; color: var(--text);
-  resize: none; max-height: 120px; min-height: 42px; outline: none; line-height: 1.4;
-  transition: border-color 0.2s; -webkit-appearance: none;
-  user-select: text; -webkit-user-select: text;
-}
+.chat-input-row { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; background: var(--surface); }
+.chat-textarea { flex: 1; background: var(--surface-3); border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; font-family: var(--font); font-size: 14px; color: var(--text); resize: none; max-height: 120px; min-height: 42px; outline: none; line-height: 1.4; transition: border-color 0.2s; -webkit-appearance: none; user-select: text; -webkit-user-select: text; }
 .chat-textarea:focus { border-color: rgba(79,152,163,0.5); }
 .chat-textarea::placeholder { color: var(--text-faint); }
-.chat-send-btn {
-  width: 42px; height: 42px; border-radius: 50%; border: none;
-  background: var(--accent); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; transition: opacity 0.2s, transform 0.15s;
-}
+.chat-send-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--accent); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: opacity 0.2s, transform 0.15s, background 0.2s; }
 .chat-send-btn:disabled { opacity: 0.35; }
 .chat-send-btn:active:not(:disabled) { transform: scale(0.92); }
-
-/* active model pill shown in chat header */
-.chat-model-pill {
-  font-size: 10px; font-weight: 600; color: var(--accent);
-  background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.25);
-  border-radius: 20px; padding: 2px 8px; margin-top: 3px;
-  display: inline-block;
-}
-
-.scaffold-badge {
-  display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.8px; color: #e8a44a;
-  background: rgba(232,164,74,0.12); border: 1px solid rgba(232,164,74,0.25);
-  border-radius: 20px; padding: 2px 8px; margin-bottom: 8px;
-}
-.live-badge {
-  display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.8px; color: var(--success);
-  background: var(--success-dim); border: 1px solid rgba(109,170,69,0.3);
-  border-radius: 20px; padding: 2px 8px; margin-bottom: 8px;
-}
-
-.toast {
-  position: fixed; bottom: 96px; left: 50%;
-  transform: translateX(-50%) translateY(40px);
-  background: var(--surface-3); border: 1px solid var(--border);
-  border-radius: 24px; padding: 9px 16px; font-size: 13px; font-weight: 500;
-  color: var(--text-muted); white-space: nowrap; z-index: 500;
-  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease); opacity: 0; pointer-events: none;
-}
+.chat-send-btn.stop { background: var(--error); }
+.chat-model-pill { font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.25); border-radius: 20px; padding: 2px 8px; margin-top: 3px; display: inline-block; }
+.scaffold-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #e8a44a; background: rgba(232,164,74,0.12); border: 1px solid rgba(232,164,74,0.25); border-radius: 20px; padding: 2px 8px; margin-bottom: 8px; }
+.live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--success); background: var(--success-dim); border: 1px solid rgba(109,170,69,0.3); border-radius: 20px; padding: 2px 8px; margin-bottom: 8px; }
+.toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(40px); background: var(--surface-3); border: 1px solid var(--border); border-radius: 24px; padding: 9px 16px; font-size: 13px; font-weight: 500; color: var(--text-muted); white-space: nowrap; z-index: 500; transition: transform 0.3s var(--ease), opacity 0.3s var(--ease); opacity: 0; pointer-events: none; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
 </head>
@@ -428,9 +208,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
     </div>
     <div class="header-sub">20 prompts &middot; long press any prompt to dive in</div>
   </div>
-  <div class="scroll-area">
-    <div class="prompt-list" id="prompt-list"></div>
-  </div>
+  <div class="scroll-area"><div class="prompt-list" id="prompt-list"></div></div>
 </div>
 
 <div class="screen" id="screen-depth">
@@ -442,10 +220,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
     <div class="depth-label" id="depth-label">DEPTH 1 &middot; PROMPT 1</div>
     <div class="depth-title" id="depth-title">Layer 1</div>
     <div class="depth-subtitle" id="depth-subtitle">Long press any card to zoom in &middot; Double-tap to go back</div>
-    <div class="dots-row" id="depth-dots-row">
-      <span class="dots-label">Depth</span>
-      <div id="depth-dots"></div>
-    </div>
+    <div class="dots-row" id="depth-dots-row"><span class="dots-label">Depth</span><div id="depth-dots"></div></div>
   </div>
   <div class="depth-content" id="depth-content"></div>
 </div>
@@ -462,10 +237,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
     </div>
     <div class="depth-title" id="card-detail-title">Detail View</div>
     <div class="depth-subtitle" id="card-detail-subtitle">Long press to go deeper &middot; Double-tap to go back</div>
-    <div class="dots-row">
-      <span class="dots-label">Card</span>
-      <div id="card-dots"></div>
-    </div>
+    <div class="dots-row"><span class="dots-label">Card</span><div id="card-dots"></div></div>
   </div>
   <div class="depth-content" id="card-detail-content"></div>
 </div>
@@ -492,7 +264,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
   </button>
 </div>
 
-<!-- ── SETTINGS PANEL ─────────────────────────── -->
+<!-- SETTINGS PANEL -->
 <div class="settings-panel" id="settings-panel">
   <div class="settings-header">
     <div class="settings-title">⚙️ Settings</div>
@@ -501,29 +273,26 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
     </button>
   </div>
   <div class="settings-scroll">
-
     <div class="settings-section-label">Active Provider</div>
     <div class="active-provider-section">
       <div class="active-provider-label">Select Model</div>
       <select class="provider-select" id="active-provider-select"></select>
       <select class="model-select" id="active-model-select"></select>
     </div>
-
     <div class="settings-section-label">AI Provider Keys</div>
     <div class="settings-note">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Keys are stored only in this browser session — never sent to any backend.
     </div>
     <div id="provider-list"></div>
-
   </div>
 </div>
-<!-- ── END SETTINGS PANEL ─────────────────────── -->
 
+<!-- CHAT PANEL -->
 <div class="chat-panel" id="chat-panel">
   <div class="chat-panel-header">
     <div>
-      <div id="chat-mode-badge" class="scaffold-badge">&#9889; Scaffold Mode</div>
+      <div id="chat-mode-badge" class="scaffold-badge">⚡ Scaffold Mode</div>
       <div class="chat-panel-title">Chat about this</div>
       <div class="chat-model-pill" id="chat-model-pill">No model configured</div>
     </div>
@@ -537,15 +306,16 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
   </div>
   <div class="chat-messages" id="chat-messages">
     <div class="chat-empty" id="chat-empty">
-      <div class="chat-empty-icon">&#x1F4AC;</div>
+      <div class="chat-empty-icon">💬</div>
       <div>Ask anything about this content</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">Add an API key in Settings to go live</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">Add an API key in ⚙️ Settings to go live</div>
     </div>
   </div>
   <div class="chat-input-row">
     <textarea class="chat-textarea" id="chat-textarea" placeholder="Ask about this depth layer…" rows="1"></textarea>
     <button class="chat-send-btn" id="chat-send-btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <svg id="send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <svg id="stop-icon" width="18" height="18" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
     </button>
   </div>
 </div>
@@ -553,37 +323,34 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
 <div class="toast" id="toast"></div>
 
 <script>
-// ── PROVIDERS CONFIG ─────────────────────────────────────────────────────────
+// ── PROVIDERS ──────────────────────────────────────────────────────────────
 const PROVIDERS = [
-  { id:'groq',       name:'Groq',          icon:'⚡', keyPrefix:'gsk_',     placeholder:'gsk_...',              baseUrl:'https://api.groq.com/openai',                          models:['llama-3.3-70b-versatile','llama-3.1-8b-instant','mixtral-8x7b-32768','gemma2-9b-it'] },
-  { id:'openai',     name:'OpenAI',        icon:'🤖', keyPrefix:'sk-',      placeholder:'sk-...',               baseUrl:'https://api.openai.com',                               models:['gpt-4o','gpt-4o-mini','gpt-4-turbo','o1-mini'] },
-  { id:'anthropic',  name:'Anthropic',     icon:'🧠', keyPrefix:'sk-ant-',  placeholder:'sk-ant-...',           baseUrl:'https://api.anthropic.com',                            models:['claude-sonnet-4-5','claude-haiku-4-5','claude-opus-4-5'] },
-  { id:'gemini',     name:'Gemini',        icon:'💎', keyPrefix:'AIza',     placeholder:'AIza...',              baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai', models:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'] },
-  { id:'xai',        name:'xAI',           icon:'✖️', keyPrefix:'xai-',     placeholder:'xai-...',              baseUrl:'https://api.x.ai',                                     models:['grok-3-mini','grok-3','grok-2'] },
-  { id:'mistral',    name:'Mistral',       icon:'🌊', keyPrefix:'',         placeholder:'Your Mistral key…',    baseUrl:'https://api.mistral.ai',                               models:['mistral-small-latest','mistral-large-latest','codestral-latest'] },
-  { id:'deepseek',   name:'DeepSeek',      icon:'🐋', keyPrefix:'sk-',      placeholder:'sk-...',               baseUrl:'https://api.deepseek.com',                             models:['deepseek-chat','deepseek-reasoner'] },
-  { id:'cerebras',   name:'Cerebras',      icon:'🧩', keyPrefix:'csk-',     placeholder:'csk-...',              baseUrl:'https://api.cerebras.ai',                              models:['llama3.1-70b','llama3.1-8b'] },
-  { id:'fireworks',  name:'Fireworks',     icon:'🎆', keyPrefix:'fw-',      placeholder:'fw-...',               baseUrl:'https://api.fireworks.ai/inference',                   models:['accounts/fireworks/models/llama-v3p3-70b-instruct','accounts/fireworks/models/mixtral-8x7b-instruct'] },
-  { id:'sambanova',  name:'SambaNova',     icon:'🔥', keyPrefix:'',         placeholder:'Your SambaNova key…',  baseUrl:'https://api.sambanova.ai',                             models:['Meta-Llama-3.1-405B-Instruct','Meta-Llama-3.1-70B-Instruct'] },
-  { id:'ollama',     name:'Ollama (Local)',icon:'🦙', keyPrefix:'',         placeholder:'(no key needed)',      baseUrl:'http://localhost:11434',                               models:['llama3','mistral','phi3'] },
+  { id:'groq',      name:'Groq',          icon:'⚡', placeholder:'gsk_...',             baseUrl:'https://api.groq.com/openai',                             models:['llama-3.3-70b-versatile','llama-3.1-8b-instant','mixtral-8x7b-32768','gemma2-9b-it'] },
+  { id:'openai',    name:'OpenAI',        icon:'🤖', placeholder:'sk-...',              baseUrl:'https://api.openai.com',                                  models:['gpt-4o','gpt-4o-mini','gpt-4-turbo','o1-mini'] },
+  { id:'anthropic', name:'Anthropic',     icon:'🧠', placeholder:'sk-ant-...',          baseUrl:'https://api.anthropic.com',                               models:['claude-sonnet-4-5','claude-haiku-4-5','claude-opus-4-5'] },
+  { id:'gemini',    name:'Gemini',        icon:'💎', placeholder:'AIza...',             baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai', models:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'] },
+  { id:'xai',       name:'xAI',           icon:'✖️', placeholder:'xai-...',             baseUrl:'https://api.x.ai',                                        models:['grok-3-mini','grok-3','grok-2'] },
+  { id:'mistral',   name:'Mistral',       icon:'🌊', placeholder:'Your Mistral key…',   baseUrl:'https://api.mistral.ai',                                  models:['mistral-small-latest','mistral-large-latest','codestral-latest'] },
+  { id:'deepseek',  name:'DeepSeek',      icon:'🐋', placeholder:'sk-...',              baseUrl:'https://api.deepseek.com',                                models:['deepseek-chat','deepseek-reasoner'] },
+  { id:'cerebras',  name:'Cerebras',      icon:'🧩', placeholder:'csk-...',             baseUrl:'https://api.cerebras.ai',                                 models:['llama3.1-70b','llama3.1-8b'] },
+  { id:'fireworks', name:'Fireworks',     icon:'🎆', placeholder:'fw-...',              baseUrl:'https://api.fireworks.ai/inference',                      models:['accounts/fireworks/models/llama-v3p3-70b-instruct','accounts/fireworks/models/mixtral-8x7b-instruct'] },
+  { id:'sambanova', name:'SambaNova',     icon:'🔥', placeholder:'Your SambaNova key…', baseUrl:'https://api.sambanova.ai',                                models:['Meta-Llama-3.1-405B-Instruct','Meta-Llama-3.1-70B-Instruct'] },
+  { id:'ollama',    name:'Ollama (Local)',icon:'🦙', placeholder:'(no key needed)',      baseUrl:'http://localhost:11434',                                  models:['llama3','mistral','phi3'] },
 ];
 
-// In-memory key store (session only — no localStorage per sandbox constraint)
 const apiKeys = {};
 let activeProviderId = null;
 let activeModel = null;
+let abortController = null;
+let isStreaming = false;
+const chatHistory = [];
 
 function getKey(id) { return apiKeys[id] || ''; }
-function setKey(id, val) {
-  apiKeys[id] = val;
-  updateProviderRowState(id);
-  rebuildActiveProviderSelect();
-}
+function setKey(id, val) { apiKeys[id] = val; updateProviderRowState(id); rebuildActiveProviderSelect(); }
 function clearKey(id) { delete apiKeys[id]; updateProviderRowState(id); rebuildActiveProviderSelect(); }
-
 function getActiveProvider() { return PROVIDERS.find(p => p.id === activeProviderId) || null; }
 
-// ── SETTINGS UI ──────────────────────────────────────────────────────────────
+// ── SETTINGS UI ────────────────────────────────────────────────────────────
 function buildProviderList() {
   const list = document.getElementById('provider-list');
   list.innerHTML = '';
@@ -601,10 +368,9 @@ function buildProviderList() {
       '<div class="provider-input-row">' +
         '<input class="provider-key-input" id="pkey-' + p.id + '" type="password" placeholder="' + p.placeholder + '" autocomplete="off" autocorrect="off" spellcheck="false">' +
         '<button class="provider-save-btn" data-pid="' + p.id + '">Save</button>' +
-        '<button class="provider-clear-btn" data-pid="' + p.id + '" title="Clear key">✕</button>' +
+        '<button class="provider-clear-btn" data-pid="' + p.id + '" title="Clear">✕</button>' +
       '</div>';
     list.appendChild(row);
-
     row.querySelector('.provider-save-btn').addEventListener('click', () => {
       const val = document.getElementById('pkey-' + p.id).value.trim();
       if (!val) { showToast('Paste your ' + p.name + ' key first'); return; }
@@ -618,9 +384,7 @@ function buildProviderList() {
       if (activeProviderId === p.id) { activeProviderId = null; activeModel = null; rebuildActiveProviderSelect(); }
       showToast(p.name + ' key cleared');
     });
-    // Allow typing in key input without triggering long-press
-    const inp = row.querySelector('.provider-key-input');
-    inp.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+    row.querySelector('.provider-key-input').addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
   });
 }
 
@@ -639,12 +403,11 @@ function rebuildActiveProviderSelect() {
   const modelSel = document.getElementById('active-model-select');
   const keyed = PROVIDERS.filter(p => p.id === 'ollama' || getKey(p.id));
   sel.innerHTML = '';
-  if (keyed.length === 0) {
+  if (!keyed.length) {
     sel.innerHTML = '<option value="">— Add a key above —</option>';
     modelSel.innerHTML = '';
     activeProviderId = null; activeModel = null;
-    updateChatHeader();
-    return;
+    updateChatHeader(); return;
   }
   keyed.forEach(p => {
     const opt = document.createElement('option');
@@ -653,8 +416,7 @@ function rebuildActiveProviderSelect() {
     sel.appendChild(opt);
   });
   if (!activeProviderId || !keyed.find(p => p.id === activeProviderId)) {
-    activeProviderId = keyed[0].id;
-    activeModel = keyed[0].models[0];
+    activeProviderId = keyed[0].id; activeModel = keyed[0].models[0];
   }
   sel.value = activeProviderId;
   rebuildModelSelect();
@@ -680,39 +442,202 @@ document.getElementById('active-provider-select').addEventListener('change', fun
   activeProviderId = this.value;
   const p = getActiveProvider();
   activeModel = p ? p.models[0] : null;
-  rebuildModelSelect();
-  updateChatHeader();
-  showToast('Provider set to ' + (p ? p.name : '—'));
+  rebuildModelSelect(); updateChatHeader();
+  showToast('Provider → ' + (p ? p.name : '—'));
 });
-
 document.getElementById('active-model-select').addEventListener('change', function() {
-  activeModel = this.value;
-  updateChatHeader();
+  activeModel = this.value; updateChatHeader();
 });
 
 function updateChatHeader() {
   const p = getActiveProvider();
   const badge = document.getElementById('chat-mode-badge');
   const pill = document.getElementById('chat-model-pill');
-  if (p && (p.id === 'ollama' || getKey(p.id))) {
-    badge.className = 'live-badge';
-    badge.textContent = '🟢 Live';
-    pill.textContent = p.icon + ' ' + p.name + ' · ' + (activeModel || p.models[0]);
-  } else {
-    badge.className = 'scaffold-badge';
-    badge.innerHTML = '&#9889; Scaffold Mode';
-    pill.textContent = 'No model configured';
+  const isLive = p && (p.id === 'ollama' || getKey(p.id));
+  badge.className = isLive ? 'live-badge' : 'scaffold-badge';
+  badge.textContent = isLive ? '🟢 Live' : '⚡ Scaffold Mode';
+  pill.textContent = isLive ? (p.icon + ' ' + p.name + ' · ' + (activeModel || p.models[0])) : 'No model configured';
+}
+
+document.getElementById('open-settings-btn').addEventListener('click', () => document.getElementById('settings-panel').classList.add('open'));
+document.getElementById('settings-close-btn').addEventListener('click', () => document.getElementById('settings-panel').classList.remove('open'));
+
+// ── LIVE API CALL ──────────────────────────────────────────────────────────
+function buildSystemPrompt() {
+  const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
+  const cards = getCardsForDepth(currentPromptIndex, currentDepth);
+  const prompt = PROMPTS[currentPromptIndex];
+  return 'You are a helpful AI assistant embedded in a mobile UI called "Infinite Long Press". ' +
+    'The user is currently viewing depth layer ' + currentDepth + ' of a prompt: "' + prompt + '". ' +
+    'The layer is called "' + layer.title + '" and contains these data fields:\n' +
+    cards.map(c => '- ' + c.label + ': ' + c.value).join('\n') + '\n' +
+    'Answer questions about this content concisely. Be helpful and direct.';
+}
+
+async function callAPI(userMessage, onChunk, onDone, onError) {
+  const p = getActiveProvider();
+  if (!p) { onError('No provider configured.'); return; }
+
+  abortController = new AbortController();
+  const key = p.id === 'ollama' ? '' : getKey(p.id);
+  const messages = [
+    { role: 'system', content: buildSystemPrompt() },
+    ...chatHistory,
+    { role: 'user', content: userMessage }
+  ];
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (key) headers['Authorization'] = 'Bearer ' + key;
+  // Anthropic also needs version header when using direct API,
+  // but via OpenAI-compat endpoint the Bearer header is sufficient.
+
+  const body = JSON.stringify({ model: activeModel, messages, stream: true, max_tokens: 1024 });
+  const endpoint = p.baseUrl + '/v1/chat/completions';
+
+  try {
+    const resp = await fetch(endpoint, { method: 'POST', headers, body, signal: abortController.signal });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      let msg = 'API error ' + resp.status;
+      try { const j = JSON.parse(errText); msg = j.error?.message || j.message || msg; } catch(e) {}
+      onError(msg); return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') { onDone(full); return; }
+        try {
+          const json = JSON.parse(data);
+          const delta = json.choices?.[0]?.delta?.content || '';
+          if (delta) { full += delta; onChunk(delta, full); }
+        } catch(e) {}
+      }
+    }
+    onDone(full);
+  } catch(err) {
+    if (err.name === 'AbortError') { onDone(null); return; }
+    onError(err.message || 'Network error');
   }
 }
 
-// Settings open/close
-document.getElementById('open-settings-btn').addEventListener('click', openSettings);
-document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+// ── CHAT PANEL ─────────────────────────────────────────────────────────────
+const chatPanel = document.getElementById('chat-panel');
+const chatMsgsEl = document.getElementById('chat-messages');
+const chatEmpty = document.getElementById('chat-empty');
+const chatTextarea = document.getElementById('chat-textarea');
+const chatSendBtn = document.getElementById('chat-send-btn');
+const sendIcon = document.getElementById('send-icon');
+const stopIcon = document.getElementById('stop-icon');
 
-function openSettings() { document.getElementById('settings-panel').classList.add('open'); }
-function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); }
+function openChatPanel() {
+  const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
+  document.getElementById('chat-context-label').textContent = layer.icon + ' ' + layer.title + ' · Prompt ' + (currentPromptIndex + 1);
+  updateChatHeader();
+  chatPanel.classList.add('open');
+  setTimeout(() => chatTextarea.focus(), 400);
+}
+function closeChatPanel() {
+  if (isStreaming && abortController) abortController.abort();
+  chatPanel.classList.remove('open');
+  chatTextarea.blur();
+}
 
-// ── PROMPTS & DEPTH DATA ─────────────────────────────────────────────────────
+chatTextarea.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+chatTextarea.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); isStreaming ? stopStream() : sendChat(); }
+});
+chatSendBtn.addEventListener('click', () => isStreaming ? stopStream() : sendChat());
+
+function setStreamingUI(on) {
+  isStreaming = on;
+  sendIcon.style.display = on ? 'none' : 'block';
+  stopIcon.style.display = on ? 'block' : 'none';
+  chatSendBtn.classList.toggle('stop', on);
+  chatTextarea.disabled = on;
+}
+
+function stopStream() {
+  if (abortController) abortController.abort();
+  setStreamingUI(false);
+}
+
+function sendChat() {
+  const text = chatTextarea.value.trim();
+  if (!text || isStreaming) return;
+  chatTextarea.value = ''; chatTextarea.style.height = 'auto';
+  chatEmpty.style.display = 'none';
+  addMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  const p = getActiveProvider();
+  const isLive = p && (p.id === 'ollama' || getKey(p.id));
+
+  if (!isLive) {
+    setTimeout(() => {
+      const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
+      const reply = 'Scaffolded response about "' + layer.title + '". Open ⚙️ Settings and add a provider key to get live AI responses.';
+      addMsg('assistant', reply);
+      addMsg('system-note', '⚙️ Settings → add any API key to go live');
+    }, 600);
+    return;
+  }
+
+  setStreamingUI(true);
+  const msgEl = addMsg('assistant', '');
+  msgEl.classList.add('streaming');
+
+  callAPI(text,
+    (delta, full) => {
+      msgEl.textContent = full;
+      msgEl.classList.add('streaming');
+      chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+    },
+    (full) => {
+      setStreamingUI(false);
+      msgEl.classList.remove('streaming');
+      if (full === null) {
+        if (!msgEl.textContent) { msgEl.remove(); }
+        return;
+      }
+      msgEl.textContent = full;
+      chatHistory.push({ role: 'assistant', content: full });
+      chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+    },
+    (errMsg) => {
+      setStreamingUI(false);
+      msgEl.remove();
+      addMsg('error', '⚠ ' + errMsg);
+      chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+    }
+  );
+}
+
+function addMsg(type, text) {
+  const m = document.createElement('div');
+  m.className = 'chat-msg ' + type;
+  m.textContent = text;
+  chatMsgsEl.appendChild(m);
+  chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+  return m;
+}
+
+document.getElementById('toolbar-chat').addEventListener('click', openChatPanel);
+document.getElementById('chat-close-btn').addEventListener('click', closeChatPanel);
+
+// ── PROMPTS & DEPTH DATA ───────────────────────────────────────────────────
 const PROMPTS = [
   "What do you think of the PWA with one-screen-at-a-time flows, a settings screen for saving a GitHub Personal Access Token in localStorage?",
   "Summarize the most recent file I uploaded and extract all action items",
@@ -738,160 +663,89 @@ const PROMPTS = [
 
 const DEPTH_LAYERS = [
   null,
-  { icon: '📋', title: 'Prompt Overview', desc: 'The full prompt text and original context.' },
-  { icon: '🔍', title: 'Prompt Analysis', desc: 'Intent, tone, and extracted keywords.' },
-  { icon: '🧩', title: 'Linked Assets', desc: 'Files, URLs, and context referenced.' },
-  { icon: '📊', title: 'Token Usage', desc: 'Estimated tokens, model used, and cost.' },
-  { icon: '🕓', title: 'Session History', desc: 'When this prompt ran and what preceded it.' },
-  { icon: '🔁', title: 'Variations', desc: 'Similar prompts you have run before.' },
-  { icon: '🧠', title: 'Model Memory', desc: 'What the model knew about you at this moment.' },
-  { icon: '⚙️', title: 'Raw Config', desc: 'System prompt, temperature, and inference params.' },
-  { icon: '📤', title: 'Export Options', desc: 'Copy, share, save as .osmd, or push to repo.' },
-  { icon: '🗂️', title: 'Archive', desc: 'Version history and diff from prior runs.' },
+  { icon:'📋', title:'Prompt Overview',  desc:'The full prompt text and original context.' },
+  { icon:'🔍', title:'Prompt Analysis',  desc:'Intent, tone, and extracted keywords.' },
+  { icon:'🧩', title:'Linked Assets',    desc:'Files, URLs, and context referenced.' },
+  { icon:'📊', title:'Token Usage',      desc:'Estimated tokens, model used, and cost.' },
+  { icon:'🕓', title:'Session History',  desc:'When this prompt ran and what preceded it.' },
+  { icon:'🔁', title:'Variations',       desc:'Similar prompts you have run before.' },
+  { icon:'🧠', title:'Model Memory',     desc:'What the model knew about you at this moment.' },
+  { icon:'⚙️', title:'Raw Config',       desc:'System prompt, temperature, and inference params.' },
+  { icon:'📤', title:'Export Options',   desc:'Copy, share, save as .osmd, or push to repo.' },
+  { icon:'🗂️', title:'Archive',          desc:'Version history and diff from prior runs.' },
 ];
 
 const CARD_SUBLAYERS = [
   null,
-  { label: 'Summary', desc: 'A concise summary of this data field.' },
-  { label: 'Full Detail', desc: 'Complete untruncated content of this field.' },
-  { label: 'Edit History', desc: 'Changes made to this field over time.' },
-  { label: 'Related', desc: 'Other fields and prompts connected to this one.' },
-  { label: 'Raw / Export', desc: 'Raw data string — copy or export this field.' },
+  { label:'Summary',     desc:'A concise summary of this data field.' },
+  { label:'Full Detail', desc:'Complete untruncated content of this field.' },
+  { label:'Edit History',desc:'Changes made to this field over time.' },
+  { label:'Related',     desc:'Other fields and prompts connected to this one.' },
+  { label:'Raw / Export',desc:'Raw data string — copy or export this field.' },
 ];
 
-const MAX_DEPTH = 10;
-const MAX_CARD_DEPTH = 5;
-const LONG_PRESS_MS = 600;
-
-let currentPromptIndex = 0;
-let currentDepth = 0;
-let currentCardIndex = 0;
-let currentCardDepth = 0;
-let isTransitioning = false;
-let lastTapTime = 0;
-let editMode = false;
+const MAX_DEPTH = 10, MAX_CARD_DEPTH = 5, LONG_PRESS_MS = 600;
+let currentPromptIndex = 0, currentDepth = 0, currentCardIndex = 0, currentCardDepth = 0;
+let isTransitioning = false, lastTapTime = 0, editMode = false;
 
 const screens = {
-  home: document.getElementById('screen-home'),
+  home:  document.getElementById('screen-home'),
   depth: document.getElementById('screen-depth'),
-  card: document.getElementById('screen-card-detail'),
+  card:  document.getElementById('screen-card-detail'),
 };
 
 function activateScreen(name) {
   if (isTransitioning) return;
   isTransitioning = true;
-  Object.entries(screens).forEach(([k, s]) => {
+  Object.entries(screens).forEach(([k,s]) => {
     if (k === name) return;
-    if (s.classList.contains('active')) {
-      s.classList.add('exit-back');
-      s.classList.remove('active');
-      setTimeout(() => s.classList.remove('exit-back'), 260);
-    }
+    if (s.classList.contains('active')) { s.classList.add('exit-back'); s.classList.remove('active'); setTimeout(() => s.classList.remove('exit-back'), 260); }
   });
-  setTimeout(() => {
-    screens[name].classList.add('active');
-    isTransitioning = false;
-  }, 80);
+  setTimeout(() => { screens[name].classList.add('active'); isTransitioning = false; }, 80);
 }
 
-function showHome() {
-  setEditMode(false);
-  currentDepth = 0; currentCardDepth = 0;
-  activateScreen('home');
-  document.getElementById('edit-fab').classList.remove('visible');
-}
-
-function showDepth(promptIdx, depth) {
-  currentPromptIndex = promptIdx;
-  currentDepth = depth;
-  currentCardDepth = 0;
-  renderDepthScreen(promptIdx, depth);
-  activateScreen('depth');
-  document.getElementById('edit-fab').classList.add('visible');
-  if (editMode) setTimeout(() => applyEditModeToScreen(), 120);
-}
-
-function showCardDetail(cardIdx, cardDepth) {
-  currentCardIndex = cardIdx;
-  currentCardDepth = cardDepth;
-  renderCardDetail(cardIdx, cardDepth);
-  activateScreen('card');
-  if (editMode) setTimeout(() => applyEditModeToScreen(), 120);
-}
+function showHome() { setEditMode(false); currentDepth = 0; currentCardDepth = 0; activateScreen('home'); document.getElementById('edit-fab').classList.remove('visible'); }
+function showDepth(idx, depth) { currentPromptIndex = idx; currentDepth = depth; currentCardDepth = 0; renderDepthScreen(idx, depth); activateScreen('depth'); document.getElementById('edit-fab').classList.add('visible'); if (editMode) setTimeout(applyEditModeToScreen, 120); }
+function showCardDetail(idx, depth) { currentCardIndex = idx; currentCardDepth = depth; renderCardDetail(idx, depth); activateScreen('card'); if (editMode) setTimeout(applyEditModeToScreen, 120); }
 
 function getCardsForDepth(promptIdx, depth) {
   const prompt = PROMPTS[promptIdx];
   const sets = {
-    1: [
-      { label: 'Full Prompt', value: prompt },
-      { label: 'Characters', value: prompt.length + ' characters' },
-      { label: 'Word Count', value: prompt.split(' ').length + ' words' },
-      { label: 'Context', value: 'Prompt #' + (promptIdx + 1) + ' in session history' },
-    ],
-    2: [
-      { label: 'Intent', value: 'Asks for analysis, synthesis, or generation of structured content.' },
-      { label: 'Tone', value: 'Technical and exploratory.' },
-      { label: 'Top Keywords', value: prompt.split(' ').slice(0, 7).join(', ') + '…' },
-      { label: 'Complexity', value: prompt.length > 80 ? 'High' : 'Moderate' },
-    ],
-    3: [
-      { label: 'Referenced Files', value: 'No files attached to this prompt.' },
-      { label: 'URLs Detected', value: 'None.' },
-      { label: 'Linked Prompts', value: 'No prior context chain detected.' },
-    ],
-    4: [
-      { label: 'Estimated Tokens', value: Math.floor(prompt.length / 4) + ' tokens (approx.)' },
-      { label: 'Model', value: activeProviderId ? (getActiveProvider().name + ' · ' + activeModel) : 'No model configured' },
-      { label: 'Estimated Cost', value: '$0.000' + (promptIdx % 9 + 1) },
-    ],
-    5: [
-      { label: 'Ran At', value: '2d ago · April 20, 2026' },
-      { label: 'Session', value: 'Session #' + (promptIdx + 3) },
-      { label: 'Preceded By', value: 'Prompt #' + Math.max(1, promptIdx) },
-    ],
+    1: [ { label:'Full Prompt', value:prompt }, { label:'Characters', value:prompt.length+' characters' }, { label:'Word Count', value:prompt.split(' ').length+' words' }, { label:'Context', value:'Prompt #'+(promptIdx+1)+' in session history' } ],
+    2: [ { label:'Intent', value:'Asks for analysis, synthesis, or generation of structured content.' }, { label:'Tone', value:'Technical and exploratory.' }, { label:'Top Keywords', value:prompt.split(' ').slice(0,7).join(', ')+'…' }, { label:'Complexity', value:prompt.length>80?'High':'Moderate' } ],
+    3: [ { label:'Referenced Files', value:'No files attached to this prompt.' }, { label:'URLs Detected', value:'None.' }, { label:'Linked Prompts', value:'No prior context chain detected.' } ],
+    4: [ { label:'Estimated Tokens', value:Math.floor(prompt.length/4)+' tokens (approx.)' }, { label:'Model', value:activeProviderId?(getActiveProvider().name+' · '+activeModel):'No model configured' }, { label:'Estimated Cost', value:'$0.000'+(promptIdx%9+1) } ],
+    5: [ { label:'Ran At', value:'2d ago · April 20, 2026' }, { label:'Session', value:'Session #'+(promptIdx+3) }, { label:'Preceded By', value:'Prompt #'+Math.max(1,promptIdx) } ],
   };
-  return sets[Math.min(depth, 5)] || sets[1];
+  return sets[Math.min(depth,5)] || sets[1];
 }
 
-function buildCard(labelText, valueText, idx) {
+function buildCard(label, value, idx) {
   const el = document.createElement('div');
-  el.className = 'info-card';
-  el.dataset.cardIdx = idx;
-  el.innerHTML =
-    '<span class="card-long-press-hint">hold to zoom</span>' +
-    '<div class="info-card-label">' + labelText + '</div>' +
-    '<div class="info-card-value">' + valueText + '</div>';
+  el.className = 'info-card'; el.dataset.cardIdx = idx;
+  el.innerHTML = '<span class="card-long-press-hint">hold to zoom</span><div class="info-card-label">'+label+'</div><div class="info-card-value">'+value+'</div>';
   return el;
 }
 
 function renderDepthScreen(promptIdx, depth) {
   const layer = DEPTH_LAYERS[depth] || DEPTH_LAYERS[1];
-  document.getElementById('depth-back-label').textContent = depth === 1 ? 'Prompt History' : 'Depth ' + (depth - 1);
-  document.getElementById('depth-label').textContent = 'DEPTH ' + depth + ' · PROMPT ' + (promptIdx + 1);
-  document.getElementById('depth-title').textContent = layer.icon + ' ' + layer.title;
+  document.getElementById('depth-back-label').textContent = depth===1?'Prompt History':'Depth '+(depth-1);
+  document.getElementById('depth-label').textContent = 'DEPTH '+depth+' · PROMPT '+(promptIdx+1);
+  document.getElementById('depth-title').textContent = layer.icon+' '+layer.title;
   document.getElementById('depth-subtitle').textContent = 'Long press any card to zoom in · Double-tap to go back';
   renderDots('depth-dots', MAX_DEPTH, depth, false);
-
   const content = document.getElementById('depth-content');
   content.innerHTML = '';
-  const cards = getCardsForDepth(promptIdx, depth);
-  cards.forEach((card, i) => {
-    const el = buildCard(card.label, card.value, i);
-    content.appendChild(el);
-    setupLongPress(el, () => showCardDetail(i, 1));
-  });
-
+  getCardsForDepth(promptIdx, depth).forEach((card,i) => { const el = buildCard(card.label, card.value, i); content.appendChild(el); setupLongPress(el, () => showCardDetail(i, 1)); });
   if (depth < MAX_DEPTH) {
-    const hint = document.createElement('div');
-    hint.className = 'action-hint';
-    hint.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Long press here to go to depth ' + (depth + 1);
-    setupLongPress(hint, () => { vibrate([12]); if (currentDepth < MAX_DEPTH) showDepth(currentPromptIndex, currentDepth + 1); });
+    const hint = document.createElement('div'); hint.className = 'action-hint';
+    hint.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Long press to go to depth '+(depth+1);
+    setupLongPress(hint, () => { vibrate([12]); if (currentDepth<MAX_DEPTH) showDepth(currentPromptIndex, currentDepth+1); });
     content.appendChild(hint);
   } else {
-    const maxEl = document.createElement('div');
-    maxEl.className = 'depth-max-card';
-    maxEl.innerHTML = '<div class="depth-max-title">Maximum Depth Reached</div><div class="depth-max-sub">Depth 10 of 10.<br>Double-tap or use back to surface.</div>';
-    content.appendChild(maxEl);
+    const el = document.createElement('div'); el.className = 'depth-max-card';
+    el.innerHTML = '<div class="depth-max-title">Maximum Depth Reached</div><div class="depth-max-sub">Depth 10 of 10.<br>Double-tap to surface.</div>';
+    content.appendChild(el);
   }
 }
 
@@ -900,229 +754,102 @@ function renderCardDetail(cardIdx, cardDepth) {
   const card = cards[cardIdx] || cards[0];
   const sublayer = CARD_SUBLAYERS[cardDepth];
   const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
-
-  document.getElementById('card-back-label').textContent = cardDepth === 1 ? layer.title : 'Card Level ' + (cardDepth - 1);
-  document.getElementById('card-depth-badge').innerHTML =
-    '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg> Card Level ' + cardDepth + ' of ' + MAX_CARD_DEPTH;
-  document.getElementById('card-detail-title').textContent = card.label + ' — ' + sublayer.label;
-  document.getElementById('card-detail-subtitle').textContent =
-    cardDepth < MAX_CARD_DEPTH ? 'Long press any card to go deeper · Double-tap to go back' : 'Deepest card level · Double-tap to surface';
+  document.getElementById('card-back-label').textContent = cardDepth===1?layer.title:'Card Level '+(cardDepth-1);
+  document.getElementById('card-depth-badge').innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg> Card Level '+cardDepth+' of '+MAX_CARD_DEPTH;
+  document.getElementById('card-detail-title').textContent = card.label+' — '+sublayer.label;
+  document.getElementById('card-detail-subtitle').textContent = cardDepth<MAX_CARD_DEPTH?'Long press to go deeper · Double-tap to go back':'Deepest level · Double-tap to surface';
   renderDots('card-dots', MAX_CARD_DEPTH, cardDepth, true);
-
-  const content = document.getElementById('card-detail-content');
-  content.innerHTML = '';
-
+  const content = document.getElementById('card-detail-content'); content.innerHTML = '';
   const c1 = buildCard(sublayer.label, sublayer.desc, 0);
   const c2 = buildCard('Field Value', card.value, 1);
-  content.appendChild(c1);
-  content.appendChild(c2);
-
+  content.appendChild(c1); content.appendChild(c2);
   if (cardDepth < MAX_CARD_DEPTH) {
-    setupLongPress(c1, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth + 1); });
-    setupLongPress(c2, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth + 1); });
-    const hint = document.createElement('div');
-    hint.className = 'action-hint';
-    hint.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg> Hold any card to go to card level ' + (cardDepth + 1);
-    setupLongPress(hint, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth + 1); });
+    setupLongPress(c1, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth+1); });
+    setupLongPress(c2, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth+1); });
+    const hint = document.createElement('div'); hint.className = 'action-hint';
+    hint.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg> Hold to go to card level '+(cardDepth+1);
+    setupLongPress(hint, () => { vibrate([12]); showCardDetail(currentCardIndex, currentCardDepth+1); });
     content.appendChild(hint);
   } else {
-    const maxEl = document.createElement('div');
-    maxEl.className = 'depth-max-card';
-    maxEl.innerHTML = '<div class="depth-max-title">Deepest Card Level</div><div class="depth-max-sub">Card level 5 of 5.<br>Double-tap to go back.</div>';
-    content.appendChild(maxEl);
+    const el = document.createElement('div'); el.className = 'depth-max-card';
+    el.innerHTML = '<div class="depth-max-title">Deepest Card Level</div><div class="depth-max-sub">Card level 5 of 5.<br>Double-tap to go back.</div>';
+    content.appendChild(el);
   }
 }
 
 function renderDots(id, max, current, isCard) {
-  const el = document.getElementById(id);
-  el.innerHTML = '';
-  for (let i = 1; i <= max; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === current ? ' ' + (isCard ? 'card-active' : 'active') : i < current ? ' ' + (isCard ? 'card-filled' : 'filled') : '');
-    el.appendChild(d);
-  }
+  const el = document.getElementById(id); el.innerHTML = '';
+  for (let i=1;i<=max;i++) { const d=document.createElement('div'); d.className='dot'+(i===current?' '+(isCard?'card-active':'active'):i<current?' '+(isCard?'card-filled':'filled'):''); el.appendChild(d); }
 }
 
 function setupLongPress(el, onFire) {
-  let timer = null, startX = 0, startY = 0, moved = false;
+  let timer=null, startX=0, startY=0, moved=false;
   function start(e) {
-    if (e.touches && e.touches.length > 1) return;
-    if (e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) return;
-    if (e.target && e.target.closest && (e.target.closest('input') || e.target.closest('select') || e.target.closest('button'))) return;
-    const t = e.touches ? e.touches[0] : e;
-    startX = t.clientX; startY = t.clientY; moved = false;
+    if (e.touches&&e.touches.length>1) return;
+    if (e.target&&e.target.closest&&e.target.closest('[contenteditable="true"],input,select,button')) return;
+    const t=e.touches?e.touches[0]:e; startX=t.clientX; startY=t.clientY; moved=false;
     el.classList.add('pressing');
-    timer = setTimeout(() => { if (!moved) { vibrate([15,30,15]); onFire(); } cancel(); }, LONG_PRESS_MS);
+    timer=setTimeout(()=>{ if (!moved){vibrate([15,30,15]); onFire();} cancel(); }, LONG_PRESS_MS);
   }
-  function move(e) {
-    const t = e.touches ? e.touches[0] : e;
-    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) { moved = true; cancel(); }
-  }
-  function cancel() {
-    el.classList.remove('pressing');
-    clearTimeout(timer);
-  }
-  el.addEventListener('touchstart', start, {passive:true});
-  el.addEventListener('touchmove', move, {passive:true});
-  el.addEventListener('touchend', cancel);
-  el.addEventListener('touchcancel', cancel);
-  el.addEventListener('mousedown', start);
-  el.addEventListener('mousemove', move);
-  el.addEventListener('mouseup', cancel);
-  el.addEventListener('mouseleave', cancel);
+  function move(e) { const t=e.touches?e.touches[0]:e; if (Math.abs(t.clientX-startX)>8||Math.abs(t.clientY-startY)>8){moved=true; cancel();} }
+  function cancel() { el.classList.remove('pressing'); clearTimeout(timer); }
+  el.addEventListener('touchstart',start,{passive:true}); el.addEventListener('touchmove',move,{passive:true});
+  el.addEventListener('touchend',cancel); el.addEventListener('touchcancel',cancel);
+  el.addEventListener('mousedown',start); el.addEventListener('mousemove',move);
+  el.addEventListener('mouseup',cancel); el.addEventListener('mouseleave',cancel);
 }
 
 function setupDoubleTap(el, cb) {
-  function handler(e) {
-    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('[contenteditable="true"]') || e.target.closest('input') || e.target.closest('select'))) return;
-    const now = Date.now();
-    if (now - lastTapTime < 320) { cb(); lastTapTime = 0; } else { lastTapTime = now; }
-  }
-  el.addEventListener('touchend', handler);
-  el.addEventListener('dblclick', (e) => {
-    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('[contenteditable="true"]'))) return;
-    cb();
+  el.addEventListener('touchend', e => {
+    if (e.target&&e.target.closest&&e.target.closest('button,[contenteditable="true"],input,select')) return;
+    const now=Date.now(); if (now-lastTapTime<320){cb(); lastTapTime=0;} else {lastTapTime=now;}
   });
+  el.addEventListener('dblclick', e => { if (e.target&&e.target.closest&&e.target.closest('button,[contenteditable="true"]')) return; cb(); });
 }
 
-document.getElementById('depth-back-btn').addEventListener('click', () => {
-  vibrate([8,40,8]);
-  if (currentDepth <= 1) showHome(); else showDepth(currentPromptIndex, currentDepth - 1);
-});
-document.getElementById('card-back-btn').addEventListener('click', () => {
-  vibrate([8,40,8]);
-  if (currentCardDepth <= 1) activateScreen('depth'); else showCardDetail(currentCardIndex, currentCardDepth - 1);
-});
-
-setupDoubleTap(screens.depth, () => {
-  vibrate([8,40,8]);
-  if (currentDepth <= 1) showHome(); else showDepth(currentPromptIndex, currentDepth - 1);
-});
-setupDoubleTap(screens.card, () => {
-  vibrate([8,40,8]);
-  if (currentCardDepth <= 1) activateScreen('depth'); else showCardDetail(currentCardIndex, currentCardDepth - 1);
-});
+document.getElementById('depth-back-btn').addEventListener('click', () => { vibrate([8,40,8]); currentDepth<=1?showHome():showDepth(currentPromptIndex, currentDepth-1); });
+document.getElementById('card-back-btn').addEventListener('click', () => { vibrate([8,40,8]); currentCardDepth<=1?activateScreen('depth'):showCardDetail(currentCardIndex, currentCardDepth-1); });
+setupDoubleTap(screens.depth, () => { vibrate([8,40,8]); currentDepth<=1?showHome():showDepth(currentPromptIndex, currentDepth-1); });
+setupDoubleTap(screens.card, () => { vibrate([8,40,8]); currentCardDepth<=1?activateScreen('depth'):showCardDetail(currentCardIndex, currentCardDepth-1); });
 
 const editFab = document.getElementById('edit-fab');
-const editToolbar = document.getElementById('edit-toolbar');
 editFab.addEventListener('click', () => setEditMode(!editMode));
-
 function setEditMode(on) {
-  editMode = on;
-  editFab.classList.toggle('active', on);
-  editToolbar.classList.toggle('visible', on);
-  document.body.classList.toggle('edit-mode', on);
-  applyEditModeToScreen();
-  showToast(on ? 'Edit mode on — tap any card to edit' : 'Edit mode off');
+  editMode=on; editFab.classList.toggle('active',on);
+  document.getElementById('edit-toolbar').classList.toggle('visible',on);
+  document.body.classList.toggle('edit-mode',on);
+  applyEditModeToScreen(); showToast(on?'Edit mode on':'Edit mode off');
 }
-
 function applyEditModeToScreen() {
-  const active = document.querySelector('.screen.active');
-  if (!active) return;
-  active.querySelectorAll('.info-card-value').forEach(v => {
-    if (editMode) { v.contentEditable = 'true'; }
-    else { v.removeAttribute('contenteditable'); }
-  });
+  const active=document.querySelector('.screen.active'); if (!active) return;
+  active.querySelectorAll('.info-card-value').forEach(v => { editMode?v.setAttribute('contenteditable','true'):v.removeAttribute('contenteditable'); });
 }
 
 document.getElementById('toolbar-share').addEventListener('click', async () => {
-  const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
-  const cards = getCardsForDepth(currentPromptIndex, currentDepth);
-  const text = layer.title + '\n\n' + cards.map(c => c.label + ': ' + c.value).join('\n');
-  if (navigator.share) {
-    try { await navigator.share({ title: 'Prompt Depth ' + currentDepth, text }); }
-    catch(e) { showToast('Share cancelled'); }
-  } else {
-    try { await navigator.clipboard.writeText(text); showToast('Copied to clipboard'); }
-    catch(e) { showToast('Copy failed'); }
-  }
+  const layer=DEPTH_LAYERS[currentDepth]||DEPTH_LAYERS[1];
+  const text=layer.title+'\n\n'+getCardsForDepth(currentPromptIndex,currentDepth).map(c=>c.label+': '+c.value).join('\n');
+  if (navigator.share) { try{await navigator.share({title:'Prompt Depth '+currentDepth,text});}catch(e){showToast('Share cancelled');} }
+  else { try{await navigator.clipboard.writeText(text); showToast('Copied to clipboard');}catch(e){showToast('Copy failed');} }
 });
-
-document.getElementById('toolbar-send').addEventListener('click', () => {
-  showToast('📤 Send to inbox — coming in next commit');
-});
-
-document.getElementById('toolbar-chat').addEventListener('click', openChatPanel);
-document.getElementById('chat-close-btn').addEventListener('click', closeChatPanel);
-
-// ── CHAT PANEL (scaffold — live API in next commit) ───────────────────────────
-const chatPanel = document.getElementById('chat-panel');
-const chatMsgsEl = document.getElementById('chat-messages');
-const chatEmpty = document.getElementById('chat-empty');
-const chatTextarea = document.getElementById('chat-textarea');
-
-function openChatPanel() {
-  const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
-  document.getElementById('chat-context-label').textContent = layer.icon + ' ' + layer.title + ' · Prompt ' + (currentPromptIndex + 1);
-  updateChatHeader();
-  chatPanel.classList.add('open');
-  setTimeout(() => chatTextarea.focus(), 400);
-}
-function closeChatPanel() { chatPanel.classList.remove('open'); chatTextarea.blur(); }
-
-chatTextarea.addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
-chatTextarea.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
-});
-document.getElementById('chat-send-btn').addEventListener('click', sendChat);
-
-function sendChat() {
-  const text = chatTextarea.value.trim();
-  if (!text) return;
-  chatTextarea.value = ''; chatTextarea.style.height = 'auto';
-  chatEmpty.style.display = 'none';
-  addMsg('user', text);
-  const p = getActiveProvider();
-  if (p && (p.id === 'ollama' || getKey(p.id))) {
-    addMsg('thinking', '…');
-    // Live API call comes in next commit
-    setTimeout(() => {
-      chatMsgsEl.querySelector('.thinking').remove();
-      addMsg('assistant', '[API wired — live call coming in next commit for ' + p.name + ' · ' + activeModel + ']');
-    }, 600);
-  } else {
-    setTimeout(() => {
-      const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
-      addMsg('assistant', 'Scaffolded response about "' + layer.title + '". Add an API key in ⚙️ Settings to get live responses.');
-      addMsg('system-note', '⚙️ Open Settings → add any provider key to go live');
-    }, 650);
-  }
-}
-
-function addMsg(type, text) {
-  const m = document.createElement('div');
-  m.className = 'chat-msg ' + type;
-  m.textContent = text;
-  chatMsgsEl.appendChild(m);
-  chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
-}
+document.getElementById('toolbar-send').addEventListener('click', () => showToast('📤 Send to inbox — coming soon'));
 
 function vibrate(p) { if (navigator.vibrate) navigator.vibrate(p); }
-
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
 function buildPromptList() {
-  const list = document.getElementById('prompt-list');
-  const times = ['2h','3h','5h','1d','2d','3d','4d'];
-  PROMPTS.forEach((text, i) => {
-    const item = document.createElement('div');
-    item.className = 'prompt-item';
-    item.innerHTML = '<div class="prompt-text">' + text + '</div><div class="prompt-meta"><span class="prompt-time">' + times[i % times.length] + ' ago</span><span class="prompt-depth-badge">10 layers</span></div><svg class="press-ring" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/></svg>';
-    setupLongPress(item, () => showDepth(i, 1));
-    list.appendChild(item);
+  const list=document.getElementById('prompt-list');
+  const times=['2h','3h','5h','1d','2d','3d','4d'];
+  PROMPTS.forEach((text,i)=>{
+    const item=document.createElement('div'); item.className='prompt-item';
+    item.innerHTML='<div class="prompt-text">'+text+'</div><div class="prompt-meta"><span class="prompt-time">'+times[i%times.length]+' ago</span><span class="prompt-depth-badge">10 layers</span></div><svg class="press-ring" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/></svg>';
+    setupLongPress(item, ()=>showDepth(i,1)); list.appendChild(item);
   });
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────────────────────────
 buildProviderList();
 rebuildActiveProviderSelect();
 buildPromptList();
