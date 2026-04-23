@@ -24,6 +24,8 @@
   --edit-color: #e8a44a;
   --edit-dim: rgba(232,164,74,0.15);
   --edit-glow: rgba(232,164,74,0.3);
+  --success: #6daa45;
+  --success-dim: rgba(109,170,69,0.15);
   --radius: 14px;
   --radius-sm: 8px;
   --font: 'Satoshi', -apple-system, sans-serif;
@@ -60,6 +62,18 @@ body {
 .app-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 .header-badge { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.25); border-radius: 20px; padding: 3px 10px; }
 .header-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* Settings button in header */
+.settings-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--border);
+  cursor: pointer; color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.settings-btn:active { background: var(--surface-3); color: var(--text); }
+.header-right { display: flex; align-items: center; gap: 8px; }
 
 .depth-header { padding: 56px 20px 16px; flex-shrink: 0; }
 .back-btn { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500; color: var(--accent); background: none; border: none; cursor: pointer; padding: 8px 0; margin-bottom: 12px; }
@@ -175,6 +189,145 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
 .toolbar-btn.primary { background: var(--accent-dim); border-color: rgba(79,152,163,0.3); color: var(--accent); }
 .toolbar-btn.primary:active { background: rgba(79,152,163,0.25); }
 
+/* ── SETTINGS PANEL ───────────────────────────── */
+.settings-panel {
+  position: fixed; inset: 0; z-index: 400;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease);
+}
+.settings-panel.open { transform: translateY(0); }
+
+.settings-header {
+  padding: 52px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.settings-title { font-size: 20px; font-weight: 700; }
+.settings-close-btn {
+  background: var(--surface-3); border: 1px solid var(--border);
+  border-radius: 50%; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-muted);
+}
+
+.settings-scroll { flex: 1; overflow-y: auto; padding: 16px 16px calc(40px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
+.settings-scroll::-webkit-scrollbar { display: none; }
+
+.settings-section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-faint);
+  margin: 20px 0 10px; padding: 0 2px;
+}
+.settings-section-label:first-child { margin-top: 4px; }
+
+.settings-note {
+  font-size: 12px; color: var(--text-faint);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  display: flex; align-items: flex-start; gap: 8px;
+  line-height: 1.5; margin-bottom: 12px;
+}
+
+.provider-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.provider-row.has-key { border-color: rgba(79,152,163,0.3); }
+
+.provider-row-top {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.provider-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
+.provider-name { font-size: 14px; font-weight: 600; flex: 1; }
+.provider-status {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; padding: 3px 8px; border-radius: 20px;
+}
+.provider-status.active {
+  color: var(--success); background: var(--success-dim);
+  border: 1px solid rgba(109,170,69,0.3);
+}
+.provider-status.inactive {
+  color: var(--text-faint); background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+
+.provider-models {
+  font-size: 11px; color: var(--text-faint);
+  margin-bottom: 10px; line-height: 1.4;
+}
+
+.provider-input-row { display: flex; gap: 8px; align-items: center; }
+.provider-key-input {
+  flex: 1; background: var(--surface-3);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-family: var(--font); font-size: 13px;
+  color: var(--text); outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  user-select: text; -webkit-user-select: text;
+}
+.provider-key-input:focus { border-color: rgba(79,152,163,0.5); }
+.provider-key-input::placeholder { color: var(--text-faint); }
+
+.provider-save-btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  padding: 9px 14px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.provider-save-btn:active { transform: scale(0.95); opacity: 0.85; }
+.provider-clear-btn {
+  background: var(--surface-3); color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 10px; font-size: 13px; cursor: pointer;
+  font-family: var(--font); transition: background 0.15s;
+  display: none;
+}
+.provider-clear-btn:active { background: var(--surface-2); }
+.provider-row.has-key .provider-clear-btn { display: block; }
+
+/* Active provider selector */
+.active-provider-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 8px;
+}
+.active-provider-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: var(--text-faint); margin-bottom: 10px; }
+.provider-select {
+  width: 100%; background: var(--surface-3);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-family: var(--font); font-size: 14px;
+  color: var(--text); outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.model-select {
+  width: 100%; background: var(--surface-3);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-family: var(--font); font-size: 13px;
+  color: var(--text-muted); outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888784' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  margin-top: 8px;
+}
+/* ── END SETTINGS PANEL ───────────────────────── */
+
 .chat-panel {
   position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column;
   background: var(--bg); transform: translateY(100%); transition: transform 0.4s var(--ease);
@@ -201,6 +354,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
 .chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
 .chat-msg.assistant { align-self: flex-start; background: var(--surface-2); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
 .chat-msg.system-note { align-self: center; background: none; color: var(--text-faint); font-size: 12px; font-style: italic; max-width: 100%; padding: 4px 0; }
+.chat-msg.thinking { align-self: flex-start; background: var(--surface-2); color: var(--text-faint); border-bottom-left-radius: 4px; border: 1px solid var(--border); font-style: italic; }
 
 .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-faint); font-size: 13px; padding-bottom: 60px; }
 .chat-empty-icon { font-size: 32px; margin-bottom: 4px; }
@@ -215,6 +369,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
   padding: 10px 16px; font-family: var(--font); font-size: 14px; color: var(--text);
   resize: none; max-height: 120px; min-height: 42px; outline: none; line-height: 1.4;
   transition: border-color 0.2s; -webkit-appearance: none;
+  user-select: text; -webkit-user-select: text;
 }
 .chat-textarea:focus { border-color: rgba(79,152,163,0.5); }
 .chat-textarea::placeholder { color: var(--text-faint); }
@@ -226,10 +381,24 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
 .chat-send-btn:disabled { opacity: 0.35; }
 .chat-send-btn:active:not(:disabled) { transform: scale(0.92); }
 
+/* active model pill shown in chat header */
+.chat-model-pill {
+  font-size: 10px; font-weight: 600; color: var(--accent);
+  background: var(--accent-dim); border: 1px solid rgba(79,152,163,0.25);
+  border-radius: 20px; padding: 2px 8px; margin-top: 3px;
+  display: inline-block;
+}
+
 .scaffold-badge {
   display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.8px; color: #e8a44a;
   background: rgba(232,164,74,0.12); border: 1px solid rgba(232,164,74,0.25);
+  border-radius: 20px; padding: 2px 8px; margin-bottom: 8px;
+}
+.live-badge {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px; color: var(--success);
+  background: var(--success-dim); border: 1px solid rgba(109,170,69,0.3);
   border-radius: 20px; padding: 2px 8px; margin-bottom: 8px;
 }
 
@@ -250,7 +419,12 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
   <div class="header">
     <div class="header-top">
       <span class="app-title">Prompt History</span>
-      <span class="header-badge">&#x221E; Long Press</span>
+      <div class="header-right">
+        <span class="header-badge">&#x221E; Long Press</span>
+        <button class="settings-btn" id="open-settings-btn" aria-label="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="header-sub">20 prompts &middot; long press any prompt to dive in</div>
   </div>
@@ -314,15 +488,44 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
   </button>
   <button class="toolbar-btn primary" id="toolbar-chat">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Use as Prompt
+    Chat
   </button>
 </div>
+
+<!-- ── SETTINGS PANEL ─────────────────────────── -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <div class="settings-title">⚙️ Settings</div>
+    <button class="settings-close-btn" id="settings-close-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="settings-scroll">
+
+    <div class="settings-section-label">Active Provider</div>
+    <div class="active-provider-section">
+      <div class="active-provider-label">Select Model</div>
+      <select class="provider-select" id="active-provider-select"></select>
+      <select class="model-select" id="active-model-select"></select>
+    </div>
+
+    <div class="settings-section-label">AI Provider Keys</div>
+    <div class="settings-note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Keys are stored only in this browser session — never sent to any backend.
+    </div>
+    <div id="provider-list"></div>
+
+  </div>
+</div>
+<!-- ── END SETTINGS PANEL ─────────────────────── -->
 
 <div class="chat-panel" id="chat-panel">
   <div class="chat-panel-header">
     <div>
-      <div class="scaffold-badge">&#9889; Scaffold Mode</div>
+      <div id="chat-mode-badge" class="scaffold-badge">&#9889; Scaffold Mode</div>
       <div class="chat-panel-title">Chat about this</div>
+      <div class="chat-model-pill" id="chat-model-pill">No model configured</div>
     </div>
     <button class="chat-close-btn" id="chat-close-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -336,7 +539,7 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
     <div class="chat-empty" id="chat-empty">
       <div class="chat-empty-icon">&#x1F4AC;</div>
       <div>Ask anything about this content</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">API wiring coming next — responses are scaffolded</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">Add an API key in Settings to go live</div>
     </div>
   </div>
   <div class="chat-input-row">
@@ -350,6 +553,166 @@ body.edit-mode .info-card.pressing { border-color: rgba(232,164,74,0.7); }
 <div class="toast" id="toast"></div>
 
 <script>
+// ── PROVIDERS CONFIG ─────────────────────────────────────────────────────────
+const PROVIDERS = [
+  { id:'groq',       name:'Groq',          icon:'⚡', keyPrefix:'gsk_',     placeholder:'gsk_...',              baseUrl:'https://api.groq.com/openai',                          models:['llama-3.3-70b-versatile','llama-3.1-8b-instant','mixtral-8x7b-32768','gemma2-9b-it'] },
+  { id:'openai',     name:'OpenAI',        icon:'🤖', keyPrefix:'sk-',      placeholder:'sk-...',               baseUrl:'https://api.openai.com',                               models:['gpt-4o','gpt-4o-mini','gpt-4-turbo','o1-mini'] },
+  { id:'anthropic',  name:'Anthropic',     icon:'🧠', keyPrefix:'sk-ant-',  placeholder:'sk-ant-...',           baseUrl:'https://api.anthropic.com',                            models:['claude-sonnet-4-5','claude-haiku-4-5','claude-opus-4-5'] },
+  { id:'gemini',     name:'Gemini',        icon:'💎', keyPrefix:'AIza',     placeholder:'AIza...',              baseUrl:'https://generativelanguage.googleapis.com/v1beta/openai', models:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'] },
+  { id:'xai',        name:'xAI',           icon:'✖️', keyPrefix:'xai-',     placeholder:'xai-...',              baseUrl:'https://api.x.ai',                                     models:['grok-3-mini','grok-3','grok-2'] },
+  { id:'mistral',    name:'Mistral',       icon:'🌊', keyPrefix:'',         placeholder:'Your Mistral key…',    baseUrl:'https://api.mistral.ai',                               models:['mistral-small-latest','mistral-large-latest','codestral-latest'] },
+  { id:'deepseek',   name:'DeepSeek',      icon:'🐋', keyPrefix:'sk-',      placeholder:'sk-...',               baseUrl:'https://api.deepseek.com',                             models:['deepseek-chat','deepseek-reasoner'] },
+  { id:'cerebras',   name:'Cerebras',      icon:'🧩', keyPrefix:'csk-',     placeholder:'csk-...',              baseUrl:'https://api.cerebras.ai',                              models:['llama3.1-70b','llama3.1-8b'] },
+  { id:'fireworks',  name:'Fireworks',     icon:'🎆', keyPrefix:'fw-',      placeholder:'fw-...',               baseUrl:'https://api.fireworks.ai/inference',                   models:['accounts/fireworks/models/llama-v3p3-70b-instruct','accounts/fireworks/models/mixtral-8x7b-instruct'] },
+  { id:'sambanova',  name:'SambaNova',     icon:'🔥', keyPrefix:'',         placeholder:'Your SambaNova key…',  baseUrl:'https://api.sambanova.ai',                             models:['Meta-Llama-3.1-405B-Instruct','Meta-Llama-3.1-70B-Instruct'] },
+  { id:'ollama',     name:'Ollama (Local)',icon:'🦙', keyPrefix:'',         placeholder:'(no key needed)',      baseUrl:'http://localhost:11434',                               models:['llama3','mistral','phi3'] },
+];
+
+// In-memory key store (session only — no localStorage per sandbox constraint)
+const apiKeys = {};
+let activeProviderId = null;
+let activeModel = null;
+
+function getKey(id) { return apiKeys[id] || ''; }
+function setKey(id, val) {
+  apiKeys[id] = val;
+  updateProviderRowState(id);
+  rebuildActiveProviderSelect();
+}
+function clearKey(id) { delete apiKeys[id]; updateProviderRowState(id); rebuildActiveProviderSelect(); }
+
+function getActiveProvider() { return PROVIDERS.find(p => p.id === activeProviderId) || null; }
+
+// ── SETTINGS UI ──────────────────────────────────────────────────────────────
+function buildProviderList() {
+  const list = document.getElementById('provider-list');
+  list.innerHTML = '';
+  PROVIDERS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'provider-row';
+    row.id = 'provider-row-' + p.id;
+    row.innerHTML =
+      '<div class="provider-row-top">' +
+        '<span class="provider-icon">' + p.icon + '</span>' +
+        '<span class="provider-name">' + p.name + '</span>' +
+        '<span class="provider-status inactive" id="pstatus-' + p.id + '">No Key</span>' +
+      '</div>' +
+      '<div class="provider-models">' + p.models.slice(0,3).join(' · ') + (p.models.length > 3 ? ' …' : '') + '</div>' +
+      '<div class="provider-input-row">' +
+        '<input class="provider-key-input" id="pkey-' + p.id + '" type="password" placeholder="' + p.placeholder + '" autocomplete="off" autocorrect="off" spellcheck="false">' +
+        '<button class="provider-save-btn" data-pid="' + p.id + '">Save</button>' +
+        '<button class="provider-clear-btn" data-pid="' + p.id + '" title="Clear key">✕</button>' +
+      '</div>';
+    list.appendChild(row);
+
+    row.querySelector('.provider-save-btn').addEventListener('click', () => {
+      const val = document.getElementById('pkey-' + p.id).value.trim();
+      if (!val) { showToast('Paste your ' + p.name + ' key first'); return; }
+      setKey(p.id, val);
+      if (!activeProviderId) { activeProviderId = p.id; activeModel = p.models[0]; rebuildActiveProviderSelect(); }
+      showToast('✓ ' + p.name + ' key saved');
+    });
+    row.querySelector('.provider-clear-btn').addEventListener('click', () => {
+      clearKey(p.id);
+      document.getElementById('pkey-' + p.id).value = '';
+      if (activeProviderId === p.id) { activeProviderId = null; activeModel = null; rebuildActiveProviderSelect(); }
+      showToast(p.name + ' key cleared');
+    });
+    // Allow typing in key input without triggering long-press
+    const inp = row.querySelector('.provider-key-input');
+    inp.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+  });
+}
+
+function updateProviderRowState(id) {
+  const hasKey = !!getKey(id);
+  const row = document.getElementById('provider-row-' + id);
+  const status = document.getElementById('pstatus-' + id);
+  if (!row || !status) return;
+  row.classList.toggle('has-key', hasKey);
+  status.className = 'provider-status ' + (hasKey ? 'active' : 'inactive');
+  status.textContent = hasKey ? 'Active' : 'No Key';
+}
+
+function rebuildActiveProviderSelect() {
+  const sel = document.getElementById('active-provider-select');
+  const modelSel = document.getElementById('active-model-select');
+  const keyed = PROVIDERS.filter(p => p.id === 'ollama' || getKey(p.id));
+  sel.innerHTML = '';
+  if (keyed.length === 0) {
+    sel.innerHTML = '<option value="">— Add a key above —</option>';
+    modelSel.innerHTML = '';
+    activeProviderId = null; activeModel = null;
+    updateChatHeader();
+    return;
+  }
+  keyed.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.icon + ' ' + p.name;
+    if (p.id === activeProviderId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (!activeProviderId || !keyed.find(p => p.id === activeProviderId)) {
+    activeProviderId = keyed[0].id;
+    activeModel = keyed[0].models[0];
+  }
+  sel.value = activeProviderId;
+  rebuildModelSelect();
+  updateChatHeader();
+}
+
+function rebuildModelSelect() {
+  const modelSel = document.getElementById('active-model-select');
+  const p = getActiveProvider();
+  if (!p) { modelSel.innerHTML = ''; return; }
+  modelSel.innerHTML = '';
+  p.models.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    if (m === activeModel) opt.selected = true;
+    modelSel.appendChild(opt);
+  });
+  if (!activeModel || !p.models.includes(activeModel)) activeModel = p.models[0];
+  modelSel.value = activeModel;
+}
+
+document.getElementById('active-provider-select').addEventListener('change', function() {
+  activeProviderId = this.value;
+  const p = getActiveProvider();
+  activeModel = p ? p.models[0] : null;
+  rebuildModelSelect();
+  updateChatHeader();
+  showToast('Provider set to ' + (p ? p.name : '—'));
+});
+
+document.getElementById('active-model-select').addEventListener('change', function() {
+  activeModel = this.value;
+  updateChatHeader();
+});
+
+function updateChatHeader() {
+  const p = getActiveProvider();
+  const badge = document.getElementById('chat-mode-badge');
+  const pill = document.getElementById('chat-model-pill');
+  if (p && (p.id === 'ollama' || getKey(p.id))) {
+    badge.className = 'live-badge';
+    badge.textContent = '🟢 Live';
+    pill.textContent = p.icon + ' ' + p.name + ' · ' + (activeModel || p.models[0]);
+  } else {
+    badge.className = 'scaffold-badge';
+    badge.innerHTML = '&#9889; Scaffold Mode';
+    pill.textContent = 'No model configured';
+  }
+}
+
+// Settings open/close
+document.getElementById('open-settings-btn').addEventListener('click', openSettings);
+document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+
+function openSettings() { document.getElementById('settings-panel').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); }
+
+// ── PROMPTS & DEPTH DATA ─────────────────────────────────────────────────────
 const PROMPTS = [
   "What do you think of the PWA with one-screen-at-a-time flows, a settings screen for saving a GitHub Personal Access Token in localStorage?",
   "Summarize the most recent file I uploaded and extract all action items",
@@ -445,9 +808,7 @@ function showDepth(promptIdx, depth) {
   renderDepthScreen(promptIdx, depth);
   activateScreen('depth');
   document.getElementById('edit-fab').classList.add('visible');
-  if (editMode) {
-    setTimeout(() => applyEditModeToScreen(), 120);
-  }
+  if (editMode) setTimeout(() => applyEditModeToScreen(), 120);
 }
 
 function showCardDetail(cardIdx, cardDepth) {
@@ -480,7 +841,7 @@ function getCardsForDepth(promptIdx, depth) {
     ],
     4: [
       { label: 'Estimated Tokens', value: Math.floor(prompt.length / 4) + ' tokens (approx.)' },
-      { label: 'Model', value: 'Scaffold — API not yet configured' },
+      { label: 'Model', value: activeProviderId ? (getActiveProvider().name + ' · ' + activeModel) : 'No model configured' },
       { label: 'Estimated Cost', value: '$0.000' + (promptIdx % 9 + 1) },
     ],
     5: [
@@ -583,15 +944,14 @@ function renderDots(id, max, current, isCard) {
 }
 
 function setupLongPress(el, onFire) {
-  const ring = el.querySelector && el.querySelector('.press-ring circle');
   let timer = null, startX = 0, startY = 0, moved = false;
   function start(e) {
     if (e.touches && e.touches.length > 1) return;
     if (e.target && e.target.closest && e.target.closest('[contenteditable="true"]')) return;
+    if (e.target && e.target.closest && (e.target.closest('input') || e.target.closest('select') || e.target.closest('button'))) return;
     const t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY; moved = false;
     el.classList.add('pressing');
-    if (ring) { ring.style.transition = 'stroke-dashoffset ' + LONG_PRESS_MS + 'ms linear'; ring.style.strokeDashoffset = '0'; }
     timer = setTimeout(() => { if (!moved) { vibrate([15,30,15]); onFire(); } cancel(); }, LONG_PRESS_MS);
   }
   function move(e) {
@@ -600,7 +960,6 @@ function setupLongPress(el, onFire) {
   }
   function cancel() {
     el.classList.remove('pressing');
-    if (ring) { ring.style.transition = 'stroke-dashoffset 0.2s ease'; ring.style.strokeDashoffset = '138'; }
     clearTimeout(timer);
   }
   el.addEventListener('touchstart', start, {passive:true});
@@ -615,7 +974,7 @@ function setupLongPress(el, onFire) {
 
 function setupDoubleTap(el, cb) {
   function handler(e) {
-    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('[contenteditable="true"]'))) return;
+    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('[contenteditable="true"]') || e.target.closest('input') || e.target.closest('select'))) return;
     const now = Date.now();
     if (now - lastTapTime < 320) { cb(); lastTapTime = 0; } else { lastTapTime = now; }
   }
@@ -680,12 +1039,13 @@ document.getElementById('toolbar-share').addEventListener('click', async () => {
 });
 
 document.getElementById('toolbar-send').addEventListener('click', () => {
-  showToast('📤 Send to inbox — API wiring coming next');
+  showToast('📤 Send to inbox — coming in next commit');
 });
 
 document.getElementById('toolbar-chat').addEventListener('click', openChatPanel);
 document.getElementById('chat-close-btn').addEventListener('click', closeChatPanel);
 
+// ── CHAT PANEL (scaffold — live API in next commit) ───────────────────────────
 const chatPanel = document.getElementById('chat-panel');
 const chatMsgsEl = document.getElementById('chat-messages');
 const chatEmpty = document.getElementById('chat-empty');
@@ -694,6 +1054,7 @@ const chatTextarea = document.getElementById('chat-textarea');
 function openChatPanel() {
   const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
   document.getElementById('chat-context-label').textContent = layer.icon + ' ' + layer.title + ' · Prompt ' + (currentPromptIndex + 1);
+  updateChatHeader();
   chatPanel.classList.add('open');
   setTimeout(() => chatTextarea.focus(), 400);
 }
@@ -714,11 +1075,21 @@ function sendChat() {
   chatTextarea.value = ''; chatTextarea.style.height = 'auto';
   chatEmpty.style.display = 'none';
   addMsg('user', text);
-  setTimeout(() => {
-    const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
-    addMsg('assistant', 'Scaffolded response about "' + layer.title + '". Wire an API key to get real LLM responses scoped to Prompt #' + (currentPromptIndex + 1) + '.');
-    addMsg('system-note', '⚡ Scaffold mode — configure a model in Settings to go live');
-  }, 650);
+  const p = getActiveProvider();
+  if (p && (p.id === 'ollama' || getKey(p.id))) {
+    addMsg('thinking', '…');
+    // Live API call comes in next commit
+    setTimeout(() => {
+      chatMsgsEl.querySelector('.thinking').remove();
+      addMsg('assistant', '[API wired — live call coming in next commit for ' + p.name + ' · ' + activeModel + ']');
+    }, 600);
+  } else {
+    setTimeout(() => {
+      const layer = DEPTH_LAYERS[currentDepth] || DEPTH_LAYERS[1];
+      addMsg('assistant', 'Scaffolded response about "' + layer.title + '". Add an API key in ⚙️ Settings to get live responses.');
+      addMsg('system-note', '⚙️ Open Settings → add any provider key to go live');
+    }, 650);
+  }
 }
 
 function addMsg(type, text) {
@@ -746,16 +1117,14 @@ function buildPromptList() {
     const item = document.createElement('div');
     item.className = 'prompt-item';
     item.innerHTML = '<div class="prompt-text">' + text + '</div><div class="prompt-meta"><span class="prompt-time">' + times[i % times.length] + ' ago</span><span class="prompt-depth-badge">10 layers</span></div><svg class="press-ring" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/></svg>';
-    const ring = item.querySelector('.press-ring circle');
     setupLongPress(item, () => showDepth(i, 1));
-    if (ring) {
-      const orig = item.addEventListener;
-      // ring animation wired via setupLongPress by passing ring separately
-    }
     list.appendChild(item);
   });
 }
 
+// ── INIT ─────────────────────────────────────────────────────────────────────
+buildProviderList();
+rebuildActiveProviderSelect();
 buildPromptList();
 </script>
 </body>
